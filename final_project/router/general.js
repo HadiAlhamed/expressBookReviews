@@ -6,38 +6,120 @@ const public_users = express.Router();
 
 
 public_users.post("/register", (req,res) => {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+    const {username , password} = req.body;
+    if(!username || !password)
+    {
+        return res.status(400).json({message : "please provide both username and password"});
+    }
+    const userExists = !isValid(username);
+    if(userExists)
+    {
+        return res.status(409).json({message : "username already in use , please use different username"});
+    }
+    users.push({
+        username,
+        password
+    });
+    return res.status(201).json({message : "user created successfully"});
+    
 });
 
 // Get the book list available in the shop
 public_users.get('/',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+    const returnedObject = {};
+
+    try{
+        returnedObject.books = books;
+        returnedObject.message = "success";
+        return res.status(200).send(JSON.stringify(returnedObject , null , 4));
+
+    }catch(err)
+    {   
+        returnedObject.error = "An error has occurred while getting all available books"
+        return res.status(500).send(JSON.stringify(returnedObject , null , 4));
+    }
 });
 
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
- });
+    const isbn = parseInt(req.params.isbn);
+    const book = books[isbn];
+    if(!book)
+    {
+        return res.status(404).send(`book with isbn ${isbn} does not exist`);
+    }
+    res.status(200).send(JSON.stringify(book , null , 4));
+    
+});
   
 // Get book details based on author
 public_users.get('/author/:author',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+    const author = req.params.author;
+    try{
+        const returnedObject = {};
+        const booksOfAuthor = [];
+        for(isbn of Object.keys(books))
+        {
+            if((books[isbn].author).toLowerCase() === author.toLowerCase())
+            {
+                booksOfAuthor.push(books[isbn]);
+            }
+        }
+        returnedObject.booksOfAuthor = booksOfAuthor;
+        returnedObject.message = "success";
+        return res.status(200).send(JSON.stringify(returnedObject , null , 4));
+    }catch(err)
+    { 
+        returnedObject.error = "an error has occurred while getting authors books";
+        return res.status(500).send(JSON.stringify(returnedObject , null , 4));
+    }
 });
 
 // Get all books based on title
 public_users.get('/title/:title',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+    const title = req.params.title;
+    const returnedObject = {};
+    try{
+        const booksOfTitle = [];
+        for(isbn of Object.keys(books))
+        {
+            if((books[isbn].title).toLowerCase() === title.toLowerCase())
+            {
+                booksOfTitle.push(books[isbn]);
+            }
+        }
+        returnedObject.booksOfTitle = booksOfTitle;
+        returnedObject.message = "success";
+        return res.status(200).send(JSON.stringify(returnedObject , null , 4));
+   
+    }catch(err)
+    {
+        returnedObject.error = "an error has occurred while getting books of a title";
+        res.status(500).send(JSON.stringify(returnedObject , null , 4));
+    }
 });
 
 //  Get book review
 public_users.get('/review/:isbn',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+    const isbn = req.params.isbn;
+    const returnedObject = {};
+    if(!books[isbn])
+    {
+        returnedObject.message = "books with given isbn does not exists";
+        return res.status(500).send(JSON.stringify(returnedObject , null , 4));
+    
+    }
+    try{
+        
+        returnedObject.reviews = books[isbn].reviews;
+        returnedObject.message = "success";
+        return res.status(200).send(JSON.stringify(returnedObject , null , 4));
+   
+    }catch(err)
+    {
+        returnedObject.error = "an error has occurred while getting books reviews";
+        res.status(500).send(JSON.stringify(returnedObject , null , 4));
+    }
 });
 
 module.exports.general = public_users;
