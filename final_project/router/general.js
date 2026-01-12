@@ -1,9 +1,20 @@
 const express = require('express');
+const axios = require('axios');
 let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
 
+public_users.get('/books/async', async(req,res)=>{
+    try{
+        const response = await axios.get('http://localhost:5000/');
+        const booksData = response.data.books;
+        return res.status(200).json({books: booksData, message: "success"});
+    }catch(err)
+    {
+        return res.status(500).json({message: "An error occurred while fetching books asynchronously"});
+    }
+});
 
 public_users.post("/register", (req,res) => {
     const {username , password} = req.body;
