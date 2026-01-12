@@ -23,7 +23,7 @@ app.use("/customer/auth/*", function auth(req,res,next){
     }
 
     try{
-        const user = jwt.verify(accessToken , "jwt_secret");
+        const user = jwt.verify(accessToken , "fingerprint_customer");
         req.user = user;
         next();
     }catch(err)
