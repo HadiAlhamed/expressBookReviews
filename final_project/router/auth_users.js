@@ -143,6 +143,46 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
         4
     ));
 });
+
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+        const isbn = req.params.isbn;
+        const { username } = req.user;
+        
+        if (!books.hasOwnProperty(isbn)) {
+            return res.status(404).send(JSON.stringify(
+                {
+                    error: `Book with ISBN ${isbn} does not exist`
+                },
+                null,
+                4
+            ));
+        }
+        const book = books[isbn];
+        
+        if (!book.reviews || !book.reviews.hasOwnProperty(username)) {
+            return res.status(404).send(JSON.stringify(
+                {
+                    error: "Review not found for the user"
+                },
+                null,
+                4
+            ));
+        }
+        delete book.reviews[username];
+        if (Object.keys(book.reviews).length === 0) {
+            delete book.reviews;
+        }
+        
+        return res.status(200).send(JSON.stringify(
+            {
+                message: "Review deleted successfully",
+                isbn: isbn,
+            },
+            null,
+            4
+        ));
+});
+
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;
 module.exports.users = users;
