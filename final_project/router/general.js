@@ -135,6 +135,17 @@ public_users.get('/title/:title',function (req, res) {
         res.status(500).send(JSON.stringify(returnedObject , null , 4));
     }
 });
+// Get all books based on title(async)
+public_users.get('/async/title/:title', async(req,res)=>{
+    const title = req.params.title;
+    try{
+        const response = await axios.get(`http://localhost:5000/title/${title}`);
+        const booksData = response.data.booksOfTitle;
+        return res.status(200).json({books: booksData, message: "success"});
+    }catch(err) {
+        return res.status(500).json({message: "An error occurred while fetching books of a title asynchronously"});
+    }   
+});
 
 //  Get book review
 public_users.get('/review/:isbn',function (req, res) {
