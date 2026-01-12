@@ -100,6 +100,18 @@ public_users.get('/author/:author',function (req, res) {
     }
 });
 
+// Get book details based on author (async)
+public_users.get('/async/author/:author', async(req,res)=>{
+    const author = req.params.author;
+    try{
+        const response = await axios.get(`http://localhost:5000/author/${author}`);
+        const booksData = response.data.booksOfAuthor;
+        return res.status(200).json({books: booksData, message: "success"});
+    }catch(err) {
+        return res.status(500).json({message: "An error occurred while fetching author's books asynchronously"});
+    }
+});
+
 // Get all books based on title
 public_users.get('/title/:title',function (req, res) {
     const title = req.params.title;
