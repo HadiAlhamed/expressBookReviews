@@ -54,15 +54,29 @@ public_users.get('/',function (req, res) {
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn',function (req, res) {
     const isbn = parseInt(req.params.isbn);
-    const book = books[isbn];
-    if(!book)
+    if(books.hasOwnProperty(isbn) === false)
     {
         return res.status(404).send(`book with isbn ${isbn} does not exist`);
-    }
+    }    
+    const book = books[isbn];
     res.status(200).send(JSON.stringify(book , null , 4));
     
 });
   
+//get  book details based on ISBN (async)
+
+public_users.get('/async/isbn/:isbn', async(req,res)=>{
+    const isbn = parseInt(req.params.isbn);
+    try{    
+        const response = await axios.get(`http://localhost:5000/isbn/${isbn}`);
+        const bookData = response.data;
+        return res.status(200).json({book: bookData, message: "success"});
+    }catch(err)
+    {
+        return res.status(500).json({message: "An error occurred while fetching book details asynchronously"});
+    }
+});
+
 // Get book details based on author
 public_users.get('/author/:author',function (req, res) {
     const author = req.params.author;
