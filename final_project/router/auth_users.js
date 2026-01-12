@@ -61,7 +61,7 @@ regd_users.post("/login", (req,res) => {
   try{
     const accessToken =  jwt.sign(
         {
-            data : username
+            username : username
         },
         "fingerprint_customer",
         {
@@ -96,10 +96,53 @@ regd_users.post("/login", (req,res) => {
 
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+    const isbn = req.params.isbn;
+    const review = req.query.review;
+    
+    if (!review || review.trim().length === 0) {
+        return res.status(400).send(JSON.stringify(
+            {
+                error: "Review text cannot be empty"
+            },
+            null,
+            4
+        ));
+    }
+    
+    const cleanReview = review.trim();
+    const { username } = req.user;
+    
+    if (!books.hasOwnProperty(isbn)) {
+        return res.status(400).send(JSON.stringify(
+            {
+                error: `Book with ISBN ${isbn} does not exist`
+            },
+            null,
+            4
+        ));
+    }
+    
+    const book = books[isbn];
+    
+    if (!book.reviews) {
+        book.reviews = {};
+    }
+    
+    const alreadyReviewed = book.reviews.hasOwnProperty(username);
+    book.reviews[username] = cleanReview;
+    return res.status(200).send(JSON.stringify(
+        {
+            message: alreadyReviewed 
+                ? "Review modified successfully" 
+                : "Review added successfully",
+            review: cleanReview,
+            isbn: isbn,
+            
+        },
+        null,
+        4
+    ));
 });
-
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;
 module.exports.users = users;
